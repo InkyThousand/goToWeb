@@ -35,6 +35,23 @@ This script launches the Bastion host and the web server, sets up security group
 6. **Access the Web Server**
 After the scripts complete, you can access the web server via its public IP. The default page will show PHP info.
 
+Find the private IP of the web server:
+On your local machine (not Bastion), run:
+```
+aws ec2 describe-instances \
+  --filters "Name=tag:Name,Values=WebServer" \
+  --query "Reservations[0].Instances[0].PrivateIpAddress" \
+  --output text
+```
+From the Bastion server, SSH to the web server:
+```
+ssh -i /path/to/your/keypair.pem ec2-user@<webserver-private-ip>
+```
+You can upload your .pem file from your local machine to the Bastion server using scp
+```
+scp -i ~/.ssh/myBastionKey.pem ~/Downloads/myKeyPair.pem ec2-user@<BastionPublicIP>:~/
+```
+
 **Notes**
 - The Bastion host allows SSH access only from your current IP.
 - The web server allows HTTP (port 80) from anywhere and SSH only from the Bastion host.
