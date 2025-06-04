@@ -128,16 +128,6 @@ aws ec2 authorize-security-group-ingress \
 
 echo "Inbound rules added to Web Server Security Group"
 
-# Create a user data script for the web server
-webserver_userdata=$(cat <<'EOF'
-#!/bin/bash
-yum update -y
-yum install -y httpd php mysql
-systemctl enable httpd
-systemctl start httpd
-echo "<?php phpinfo(); ?>" > /var/www/html/index.php
-EOF
-)
 
 # Launch webserserver in public subnet with connection into only from bastion server but with inbound rule to allow HTTP traffic from anywhere
 webserver_id=$(aws ec2 run-instances \
@@ -146,7 +136,7 @@ webserver_id=$(aws ec2 run-instances \
   --key-name $keypair \
   --security-group-ids $WebServerSecurityGroup \
   --subnet-id $pubsub1 \
-  --user-data "$webserver_userdata" \
+  --user-data file://userdata.sh \
   --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=WebServer}]' \
   --query 'Instances[0].InstanceId' \
   --output text
