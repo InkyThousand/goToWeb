@@ -143,3 +143,11 @@ webserver_id=$(aws ec2 run-instances \
 )
 
 echo "WebServer launched: $webserver_id"
+
+# Get the public IP of the Bastion Server
+bastion_ip=$(aws ec2 describe-instances \
+  --instance-ids $instance_id \
+  --query 'Reservations[0].Instances[0].PublicIpAddress' \
+  --output text)
+
+echo "Bastion Server Public IP: $bastion_ip"
